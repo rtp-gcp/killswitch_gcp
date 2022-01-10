@@ -21,7 +21,7 @@ Used [this](https://github.com/aioverlords/Google-Cloud-Platform-Killswitch) rep
 1. create function to trigger on the Cloud Pub/Sub topic above
 2. Specify retry on failure
 3. Change Entry point to stopBilling
-4. Add the following code
+4. Add the following code NOTE: change PROJECT_ID to proper value
 ```
 const {
     google
@@ -132,7 +132,19 @@ const _disableBillingForProject = async projectName => {
    "googleapis": "^52.0.0"
  }
 }
-```
+``
+
+# IAM and Admin
+1. Service Accounts in left side panel - create killswitch-sa service account`
+2. IAM in left side panel - Add one role - Project Billing Manager
+
+# Cloud Function
+1. Go back to killswitch cloud function
+2. Click Edit
+3. Click Runtime, build, connections, and security settings
+4. Modify "Runtime service account" to use killswitch service account
+
+
 
 # Testing
 1. Go to topics
@@ -145,9 +157,14 @@ const _disableBillingForProject = async projectName => {
     "budgetDisplayName": "name-of-budget",
     "alertThresholdExceeded": 1.0,
     "costAmount": 100.01,
-    "costIntervalStart": "2019-01-01T00:00:00Z",
+    "costIntervalStart": "2022-01-09T00:00:00Z",
     "budgetAmount": 100.00,
     "budgetAmountType": "SPECIFIED_AMOUNT",
     "currencyCode": "USD"
 }
 ```
+
+Once you get testing working, it will act wonky.  You will not be able to see the cloud function source for example.
+At this point, the web services associated with this service account will stop.  You will get emails yadda yadda.
+
+Go back to Billing and then at bottom in left hand side, click account management to renable billing.
