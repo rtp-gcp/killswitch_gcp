@@ -167,4 +167,16 @@ const _disableBillingForProject = async projectName => {
 Once you get testing working, it will act wonky.  You will not be able to see the cloud function source for example.
 At this point, the web services associated with this service account will stop.  You will get emails yadda yadda.
 
-Go back to Billing and then at bottom in left hand side, click account management to renable billing.
+# Renable Billing
+1. Go back to Billing, at top on left side, there is a pull down, named "Billing account".  
+2. Click the pull down for the billing account
+3. Click the manage billin accounts entry
+4. At top will be two tabs, select the top right one "My Projects"
+5. Click the three dots menu for the disabled project and renable billing.
+
+Alternatively with the Billing account pulldown set to the proper billing account, 
+1. On top there are two tabs, select the top right one "Payment Overview"
+2. At bottom in the card for "Settings", click "Manage Settings"
+
+
+
