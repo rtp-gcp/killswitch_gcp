@@ -4,24 +4,35 @@ killswitch for gcp
 # credits
 Used [this](https://github.com/aioverlords/Google-Cloud-Platform-Killswitch) repo as a reference
 
+# Project Setup
 
+This capability uses two projects.  One the project to monitor - the rtp-website project
+and the second the monitoring project - the cloud function/pubsub project.  The second 
+project hosts the cloud function and the pub/sub topic.
+
+# PUB/SUB setup
+1. Select kill switch project
+2. Create topic
 
 # Billing 
-1. Got to budgetst & Alerts
-2. Create monthly budget for time range
-3. Specify all projects and all services
-4. Specify amount->Budget type as specified amount
-5. Specify Target amount as $20
-6. Specify Actions 100% of budget, trigger on actual
-7. Enable Email alerts to billing admins and users
-8. Connect a Pub/Sub topic to this budget
-9. Specify a Cloud Pub/Sub topic - create one and give it a name
+1. Select billing.
+2. Refresh the webpage if the left-hand billing menu sidebar is not available.
+3. In left side side-bar, select budgets & Alerts
+4. Create monthly budget for time range
+5. Specify all projects and all services.  (All projects including the website)
+6. Specify amount->Budget type as specified amount
+7. Specify Target amount as $20
+8. Specify Actions 100% of budget, trigger on actual
+9. Enable Email alerts to billing admins and users
+10. Connect a Pub/Sub topic to this budget
+11. Specify a Cloud Pub/Sub topic - create one and give it a name
 
 # Cloud Function
-1. create function to trigger on the Cloud Pub/Sub topic above
-2. Specify retry on failure
-3. Change Entry point to stopBilling
-4. Add the following code NOTE: change PROJECT_ID to proper value
+1. Select the kill switch project 
+2. create function to trigger on the Cloud Pub/Sub topic above
+3. Specify retry on failure
+4. Change Entry point to stopBilling
+5. Add the following code NOTE: change PROJECT_ID in the code to proper value
 ```
 const {
     google
@@ -30,7 +41,8 @@ const {
     GoogleAuth
 } = require('google-auth-library');
 
-const PROJECT_ID = 'macgyver-services-production';
+/* this is the project to shutdown */
+const PROJECT_ID = 'rtp-gcp-website';
 const PROJECT_NAME = `projects/${PROJECT_ID}`;
 const billing = google.cloudbilling('v1').projects;
 
@@ -125,7 +137,8 @@ const _disableBillingForProject = async projectName => {
 5. changed package.json to this
 ```
 {
- "name": "cloud-functions-billing",
+ //TODO we took this out"name": "cloud-functions-billing",
+ // TODO we also took out the pub sub entry
  "version": "0.0.1",
  "dependencies": {
    "google-auth-library": "^2.0.0",
