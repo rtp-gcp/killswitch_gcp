@@ -10,6 +10,8 @@ This capability uses two projects.  One the project to monitor - the rtp-website
 and the second the monitoring project - the cloud function/pubsub project.  The second 
 project hosts the cloud function and the pub/sub topic.
 
+In the killswitch project enable the compute engine api.
+
 # PUB/SUB setup
 1. Select kill switch project
 2. Create topic
@@ -27,12 +29,30 @@ project hosts the cloud function and the pub/sub topic.
 10. Connect a Pub/Sub topic to this budget
 11. Specify a Cloud Pub/Sub topic - create one and give it a name
 
+
+# IAM and Admin
+
+From before there was an inheritance problem where the default service agent could not
+be modified.  So, create a service account first.
+
+1. Service Accounts in left side panel - create killswitch-sa service account`
+2. IAM in left side panel - Add one role - Project Billing Manager
+3. Do I need App Engine and Pub/Sub?
+4. Add compute engine access.
+
+
 # Cloud Function
 1. Select the kill switch project 
 2. create function to trigger on the Cloud Pub/Sub topic above
 3. Specify retry on failure
-4. Change Entry point to stopBilling
-5. Add the following code NOTE: change PROJECT_ID in the code to proper value
+4. Click Runtime, build, connections, and security settings
+5. Modify "Runtime service account" to use killswitch service account
+6. We also tried to create a new service account and then modify that service
+account to have access to project billing.  That did not work either.
+8. Change Entry point to stopBilling
+9. Add the following code NOTE: change PROJECT_ID in the code to proper value
+
+
 ```
 const {
     google
@@ -135,34 +155,43 @@ const _disableBillingForProject = async projectName => {
 };
 ```
 5. changed package.json to this
+
+JSON doesn't have comments?
+
+Remove the existing stub 
+
 ```
 {
- //TODO we took this out"name": "cloud-functions-billing",
- // TODO we also took out the pub sub entry
+  "name": "sample-pubsub",
+  "version": "0.0.1",
+  "dependencies": {
+    "@google-cloud/pubsub": "^0.18.0"
+  }
+}
+```
+
+And replace it with this:
+
+
+```
+{
+ "name": "cloud-functions-billing",
  "version": "0.0.1",
  "dependencies": {
    "google-auth-library": "^2.0.0",
-   "googleapis": "^52.0.0"
+   "googleapis": "^52.0.0",
+   "@google-cloud/pubsub": "^0.18.0"
  }
 }
-``
+```
 
-# IAM and Admin
-1. Service Accounts in left side panel - create killswitch-sa service account`
-2. IAM in left side panel - Add one role - Project Billing Manager
-
-# Cloud Function
-1. Go back to killswitch cloud function
-2. Click Edit
-3. Click Runtime, build, connections, and security settings
-4. Modify "Runtime service account" to use killswitch service account
 
 
 
 # Testing
 1. Go to topics
 2. Click the topic
-3. at bottom, three tabs, "Subscriptions, snapshots, messages", click messages
+3. at bottom, tabs, click messages
 4. click publish message
 5. Use this message body
 ```
