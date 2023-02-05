@@ -33,12 +33,19 @@ In the killswitch project enable the compute engine api.
 # IAM and Admin
 
 From before there was an inheritance problem where the default service agent could not
-be modified.  So, create a service account first.
+be modified.  So, create a service account first.  This service account is created in the killswitch project.  It will need cloud function api privlages and it will need project billing priviliges.  In addition it needs to be added as a principal in the project rtp-gcp-website where it queries and disables billings.
 
-1. Service Accounts in left side panel - create killswitch-sa service account`
-2. IAM in left side panel - Add one role - Project Billing Manager
-3. Do I need App Engine and Pub/Sub?
-4. Add compute engine access.
+1. Select project killswitch
+2. Service Accounts in left side panel - create killswitch-sa service account`
+3. IAM in left side panel - Add two roles 
+4. Add project billing
+5. Add app engine admin
+6. Now, switch to the second project gcp website,
+7. Add principal (+Grant Acces),
+8. specify email for killswith-sa service account
+9. Add  role as project billing.
+
+In summary, the SA in the killswitch project runs as cloud function to determine billing for the website project, and then disables billing for the website project.
 
 
 # Cloud Function
@@ -54,6 +61,7 @@ account to have access to project billing.  That did not work either.
 
 
 ```
+
 const {
     google
 } = require('googleapis');
@@ -68,20 +76,29 @@ const billing = google.cloudbilling('v1').projects;
 
 exports.stopBilling = async pubsubEvent => {
 
+    //console.log('stopBilling:-=-=-=-=-=-=-=-=-=-=-')
+
     console.log(pubsubEvent.data);
 
     const pubsubData = JSON.parse(
         Buffer.from(pubsubEvent.data, 'base64').toString()
     );
 
+    //console.log('stopBilling: --- display pubsubData  ---')
+
     console.log(pubsubData);
     console.log(pubsubData.costAmount);
     console.log(pubsubData.budgetAmount);
+
+    //console.log('stopBilling: -- check budget amounts from pubsub  ----')
 
     if (pubsubData.costAmount <= pubsubData.budgetAmount) {
         console.log("No action necessary.");
         return `No action necessary. (Current cost: ${pubsubData.costAmount})`;
     }
+
+    //console.log('stopBilling: using project: -- ' + PROJECT_ID)
+
 
     if (!PROJECT_ID) {
         console.log("no project specified");
@@ -89,6 +106,9 @@ exports.stopBilling = async pubsubEvent => {
     }
 
     _setAuthCredential();
+
+    //console.log('stopBilling: before calling billingEnabled():  ----')
+
 
     const billingEnabled = await _isBillingEnabled(PROJECT_NAME);
     if (billingEnabled) {
@@ -123,6 +143,10 @@ const _setAuthCredential = () => {
  * @return {bool} Whether project has billing enabled or not
  */
 const _isBillingEnabled = async projectName => {
+
+  //console.log('_isBillingEnabled:-=-=-=-=-=-=-=-=-=-=-')
+
+
     try {
         const res = await billing.getBillingInfo({
             name: projectName
@@ -196,7 +220,7 @@ And replace it with this:
 5. Use this message body
 ```
 {
-    "budgetDisplayName": "name-of-budget",
+    "budgetDisplayName": "killswitch-testy",
     "alertThresholdExceeded": 1.0,
     "costAmount": 100.01,
     "costIntervalStart": "2022-01-09T00:00:00Z",
