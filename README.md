@@ -203,8 +203,7 @@ And replace it with this:
  "version": "0.0.1",
  "dependencies": {
    "google-auth-library": "^2.0.0",
-   "googleapis": "^52.0.0",
-   "@google-cloud/pubsub": "^0.18.0"
+   "googleapis": "^52.0.0"
  }
 }
 ```
@@ -213,11 +212,12 @@ And replace it with this:
 
 
 # Testing
-1. Go to topics
-2. Click the topic
-3. at bottom, tabs, click messages
-4. click publish message
-5. Use this message body
+1. In killswitch project
+2. Go to topics
+3. Click the killswitch-topic
+4. at bottom, tabs, click messages
+5. click publish message
+6. Use this message body
 ```
 {
     "budgetDisplayName": "killswitch-testy",
